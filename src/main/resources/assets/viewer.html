@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Strictly Come Dancing Database</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+<script src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
+<script src="underscore.js"></script>
+<script src="backbone.js"></script>
+<script type="text/template" id="week_template">
+    <h3><%= weekNumber %></h3>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Couple</th>
+            <th>Dance</th>
+            <th>Scores</th>
+            <th>Outcome</th>
+            <th>Music</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%= rows %>
+        </tbody>
+    </table>
+</script>
+<script type="text/template" id="week_row_template">
+    <tr>
+        <td><%= coupleName %></td>
+        <td><%= dance %></td>
+        <td><%= scores %></td>
+        <td><%= outcome %></td>
+        <td><%= music %></td>
+    </tr>
+</script>
+<script type="text/template" id="search_results_template">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Couple</th>
+            <th>Dance</th>
+            <th>Scores</th>
+            <th>Total Score</th>
+            <th>Average Score</th>
+            <th>Year</th>
+            <th>Week</th>
+            <th>Music</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%= rows %>
+        </tbody>
+    </table>
+</script>
+<script type="text/template" id="search_row_template">
+    <tr>
+        <td><%= rowNum %></td>
+        <td><%= performance.coupleResult.coupleName %></td>
+        <td><%= performance.coupleResult.dance %></td>
+        <td><%= performance.coupleResult.scores %></td>
+        <td><%= performance.coupleResult.total %></td>
+        <td><%= performance.coupleResult.averageScore %></td>
+        <td><%= performance.year %></td>
+        <td><%= performance.weekId.weekNumber %></td>
+        <td><%= performance.coupleResult.music %></td>
+    </tr>
+</script>
+<body>
+<h1>Strictly Come Dancing Database</h1>
+<input id="search_text" type="text"/><button type="button" onclick="showSearchResults()">Search</button>
+<select id="search_order">
+    <option value="Date">Date</option>
+    <option value="Scores">Scores</option>
+</select>
+  <div id="show_list_container"></div>
+</body>
+<script type="text/javascript">
+    var SeriesModel = Backbone.Model.extend({
+        urlRoot: '/series'
+    });
+    var AllPerformancesModel = Backbone.Model.extend({
+        urlRoot: '/allPerformances'
+    });
+
+    var ShowListView = Backbone.View.extend({
+        initialize: function(){
+            this.render();
+        },
+        render: function(){
+
+            // Compile the template using underscore
+            var week = _.template( $("#week_template").html(), {} );
+            var weekRow = _.template( $("#week_row_template").html(), {} );
+            // Load the compiled HTML into the Backbone "el"
+            for (var k in this.model.attributes) {
+                if (k != 'id') {
+                    var show = this.model.attributes[k]
+                    var rows = ''
+                    for (var i = 0; i < show.couples.length; i++) {
+                        var couple = show.couples[i]
+                        rows = rows.concat(weekRow(couple))
+                    }
+                    this.$el.append(week({weekNumber: show.weekId.weekNumber, rows: rows}))
+                }
+            }
+        }
+    });
+
+    var SearchResultView = Backbone.View.extend({
+        initialize: function(){
+            this.render();
+        },
+        render: function(){
+
+            // Compile the template using underscore
+            var results = _.template( $("#search_results_template").html(), {} );
+            var row = _.template( $("#search_row_template").html(), {} );
+            // Load the compiled HTML into the Backbone "el"
+            this.$el.empty();
+            var rows = ''
+            var searchText = $("#search_text").val()
+            var rowNum = 1
+            for (var k in this.model.attributes) {
+                if (k != 'id') {
+                    var candidatePerformance = this.model.attributes[k]
+                    if (candidatePerformance.coupleResult.coupleName.match(searchText)
+                        || candidatePerformance.coupleResult.music.match(searchText)
+                        || candidatePerformance.coupleResult.dance.match(searchText)) {
+                        rows = rows.concat(row({performance: candidatePerformance, rowNum: rowNum}))
+                        rowNum = rowNum+1;
+                    }
+                }
+            }
+            this.$el.append(results({rows: rows}))
+        }
+    });
+
+//    var series = new SeriesModel({id: 2004});
+//    series.fetch({
+//        success: function (series) {
+//            var show_list_view = new ShowListView({
+//                el: $("#show_list_container"),
+//                model: series
+//            });
+//        }
+//    })
+
+    function showSearchResults() {
+        var allPerformances = new AllPerformancesModel;
+        allPerformances.urlRoot = '/allPerformances?sortBy=' + $("#search_order").val();
+        allPerformances.fetch({
+            success: function(allPerformances) {
+                var search_result_view = new SearchResultView({
+                    el: $("#show_list_container"),
+                    model: allPerformances
+                })
+            }
+        });
+    }
+
+
+</script>
+</html>
