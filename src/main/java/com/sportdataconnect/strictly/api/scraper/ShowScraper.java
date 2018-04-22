@@ -41,7 +41,12 @@ public class ShowScraper {
     }
 
     private void processLine(String line, int year) {
-        if (line.isEmpty() || line.startsWith("Couple") || line.startsWith("Running order")) {
+        if (line.isEmpty() ||
+                line.startsWith("Couple") ||
+                line.startsWith("Running order") ||
+                line.startsWith("Live from the") ||
+                line.startsWith("This week's show is") ||
+                line.startsWith("Musical guest")) {
             return;
         }
         WeekId weekId = WeekId.fromString(year, line);
@@ -53,30 +58,38 @@ public class ShowScraper {
                     .setYear(year);
         } else {
             try {
-                StringTokenizer tokens = new StringTokenizer(line, "\t");
+                String[] tokens = line.split("\t");
                 CoupleResult result;
-                if (year == 2004) {
+                if (tokens.length == 3) {
                     result = new CoupleResultBuilder()
                             .setCoupleId("null")
-                            .setCoupleName(tokens.nextToken())
-                            .setDance(tokens.nextToken())
-                            .setMusic(tokens.nextToken())
-                            .setScores(tokens.nextToken())
-                            .setOutcome(tokens.hasMoreTokens() ? tokens.nextToken() : "n/a")
+                            .setCoupleName("???")
+                            .setScores(tokens[0])
+                            .setDance(tokens[1])
+                            .setMusic(tokens[2])
+                            .createCoupleResult();
+                } else if (year == 2004) {
+                    result = new CoupleResultBuilder()
+                            .setCoupleId("null")
+                            .setCoupleName(tokens[0])
+                            .setDance(tokens[1])
+                            .setMusic(tokens[2])
+                            .setScores(tokens[1])
+                            .setOutcome(tokens.length > 4 ? tokens[4] : "n/a")
                             .createCoupleResult();
                 } else {
                     result = new CoupleResultBuilder()
                             .setCoupleId("null")
-                            .setCoupleName(tokens.nextToken())
-                            .setScores(tokens.nextToken())
-                            .setDance(tokens.nextToken())
-                            .setMusic(tokens.nextToken())
-                            .setOutcome(tokens.hasMoreTokens() ? tokens.nextToken() : "n/a")
+                            .setCoupleName(tokens[0])
+                            .setScores(tokens[1])
+                            .setDance(tokens[2])
+                            .setMusic(tokens[3])
+                            .setOutcome(tokens.length > 4 ? tokens[4] : "n/a")
                             .createCoupleResult();
                 }
                 flattenCouplePerformanceRecord(currentShow, result);
                 currentShow.addResult(result);
-            } catch (NoSuchElementException e) {
+            } catch (IndexOutOfBoundsException e) {
                 System.out.println("Skipping " + line);
             }
         }
