@@ -2,7 +2,6 @@ package com.sportdataconnect.strictly.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Ordering;
 
 /**
  * Created by Will on 08/12/2014.
@@ -71,5 +70,25 @@ public class WeekId {
     @JsonProperty
     public String getNotes() {
         return notes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WeekId weekId = (WeekId) o;
+
+        if (year != weekId.year) return false;
+        if (!weekNumber.equals(weekId.weekNumber)) return false;
+        return notes != null ? notes.equals(weekId.notes) : weekId.notes == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = year;
+        result = 31 * result + weekNumber.hashCode();
+        result = 31 * result + (notes != null ? notes.hashCode() : 0);
+        return result;
     }
 }

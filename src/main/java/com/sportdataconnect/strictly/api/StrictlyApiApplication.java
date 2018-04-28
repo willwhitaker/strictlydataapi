@@ -2,13 +2,10 @@ package com.sportdataconnect.strictly.api;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Ordering;
 import com.sportdataconnect.strictly.api.model.Series;
 import com.sportdataconnect.strictly.api.resources.AllPerformancesResource;
 import com.sportdataconnect.strictly.api.resources.OverviewResource;
 import com.sportdataconnect.strictly.api.response.FlattenedCoupleResult;
-import com.sportdataconnect.strictly.api.response.Show;
-import com.sportdataconnect.strictly.api.scraper.ShowScraper;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.setup.Bootstrap;
@@ -16,11 +13,9 @@ import io.dropwizard.setup.Environment;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.LinkedList;
-import java.util.List;
+
+import static com.sportdataconnect.strictly.api.jarutil.JarUtil.openReaderForResource;
 import static com.sportdataconnect.strictly.api.scraper.ShowScraper.scrapeLines;
 
 /**
@@ -91,10 +86,5 @@ public class StrictlyApiApplication extends Application<StrictlyApiConfiguration
         } catch (IOException e) {
             throw new RuntimeException("Unable to load input data", e);
         }
-    }
-
-    private BufferedReader openReaderForResource(String resourceName) {
-        InputStream resourceAsStream = this.getClass().getResourceAsStream("/com/sportdataconnect/strictly/api/" + resourceName);
-        return new BufferedReader(new InputStreamReader(resourceAsStream, Charset.forName("UTF-8")));
     }
 }

@@ -47,4 +47,33 @@ public class FlattenedCoupleResult {
     public CoupleResult getCoupleResult() {
         return coupleResult;
     }
+
+    @Override
+    public String toString() {
+        return "FlattenedCoupleResult{" +
+                "year=" + year +
+                ", weekId=" + weekId +
+                ", coupleResult=" + coupleResult +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FlattenedCoupleResult that = (FlattenedCoupleResult) o;
+
+        if (year != that.year) return false;
+        if (!weekId.equals(that.weekId)) return false;
+        return coupleResult.equals(that.coupleResult);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = year;
+        result = 31 * result + weekId.hashCode();
+        result = 31 * result + coupleResult.hashCode();
+        return result;
+    }
 }

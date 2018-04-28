@@ -74,4 +74,48 @@ public class CoupleResult {
             return 0;
         }
     }
+
+    @Override
+    public String toString() {
+        return "CoupleResult{" +
+                "coupleId='" + coupleId + '\'' +
+                ", coupleName='" + coupleName + '\'' +
+                ", dance='" + dance + '\'' +
+                ", scores='" + scores + '\'' +
+                ", outcome='" + outcome + '\'' +
+                ", music='" + music + '\'' +
+                ", total=" + total +
+                ", numJudges=" + numJudges +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CoupleResult that = (CoupleResult) o;
+
+        if (total != that.total) return false;
+        if (numJudges != that.numJudges) return false;
+        if (!coupleId.equals(that.coupleId)) return false;
+        if (!coupleName.equals(that.coupleName)) return false;
+        if (!dance.equals(that.dance)) return false;
+        if (!scores.equals(that.scores)) return false;
+        if (outcome != null ? !outcome.equals(that.outcome) : that.outcome != null) return false;
+        return music.equals(that.music);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = coupleId.hashCode();
+        result = 31 * result + coupleName.hashCode();
+        result = 31 * result + dance.hashCode();
+        result = 31 * result + scores.hashCode();
+        result = 31 * result + (outcome != null ? outcome.hashCode() : 0);
+        result = 31 * result + music.hashCode();
+        result = 31 * result + total;
+        result = 31 * result + numJudges;
+        return result;
+    }
 }
